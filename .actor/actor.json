@@ -1,0 +1,22 @@
+{
+    "actorSpecification": 1,
+    "name": "taobao-tmall-scraper",
+    "title": "Taobao & Tmall Scraper — Products, SKUs, Final Prices, English",
+    "description": "Taobao scraper and Tmall scraper (淘宝 天猫) with a fast Taobao API workflow to extract Taobao product data in English and Chinese. Scrape product details, SKU variants, real final prices after coupons and 满减 deals, shop catalogues, search listings, CNY currency conversion, and agent links.",
+    "version": "1.2",
+    "buildTag": "latest",
+    "defaultRunOptions": {
+        "build": "latest",
+        "memoryMbytes": 1024,
+        "timeoutSecs": 3600
+    },
+    "input": "./input_schema.json",
+    "dockerfile": "../Dockerfile",
+    "readme": "../README.md",
+    "minMemoryMbytes": 512,
+    "maxMemoryMbytes": 4096,
+    "usesStandbyMode": false,
+    "storages": {
+        "dataset": "./dataset_schema.json"
+    }
+}

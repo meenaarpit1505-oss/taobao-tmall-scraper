@@ -1,0 +1,28 @@
+{
+    "events": {
+        "actor-start": {
+            "eventTitle": "Actor start",
+            "eventDescription": "Charged once per run after proxy configuration succeeds.",
+            "eventPriceUsd": 0.001,
+            "pricePer1000Usd": 1.0
+        },
+        "listing": {
+            "eventTitle": "Listing item",
+            "eventDescription": "Charged per product extracted in listing-only mode (includeDetails: false). Never charged for failed rows or shop summary rows.",
+            "eventPriceUsd": 0.0025,
+            "pricePer1000Usd": 2.5
+        },
+        "product-detail": {
+            "eventTitle": "Product detail item",
+            "eventDescription": "Charged per product extracted with full details, SKUs, attributes, and images (includeDetails: true). Never charged for failed rows or shop summary rows.",
+            "eventPriceUsd": 0.0065,
+            "pricePer1000Usd": 6.5
+        },
+        "final-price": {
+            "eventTitle": "Real final price calculation",
+            "eventDescription": "Add-on charged only when a coupon, shop discount, or threshold deal (满X减Y) is applied and priceType is 'exact_final'. Never charged for plain listed promo prices or partial deals.",
+            "eventPriceUsd": 0.015,
+            "pricePer1000Usd": 15.0
+        }
+    }
+}

@@ -1,0 +1,33 @@
+{
+    "name": "taobao-tmall-scraper",
+    "version": "1.0.0",
+    "type": "module",
+    "description": "Production-ready Taobao & Tmall Scraper (淘宝 天猫) for Apify Store — products, SKUs, real final prices, English translation, currency conversion, shopping agent links, and monitoring.",
+    "engines": {
+        "node": ">=20.0.0"
+    },
+    "main": "dist/main.js",
+    "scripts": {
+        "start": "npm run start:prod",
+        "start:prod": "node dist/main.js",
+        "start:dev": "tsx src/main.ts",
+        "build": "tsc",
+        "test": "vitest run",
+        "test:watch": "vitest"
+    },
+    "dependencies": {
+        "@crawlee/playwright": "^3.18.2",
+        "apify": "^3.4.0",
+        "cheerio": "^1.0.0",
+        "got-scraping": "^4.1.1",
+        "playwright": "^1.65.1"
+    },
+    "devDependencies": {
+        "@types/node": "^20.14.0",
+        "tsx": "^4.16.0",
+        "typescript": "^5.5.4",
+        "vitest": "^2.0.5"
+    },
+    "author": "Apify Store",
+    "license": "Apache-2.0"
+}

@@ -1,0 +1,730 @@
+{
+    "actorSpecification": 1,
+    "fields": {
+        "type": "object",
+        "properties": {
+            "recordType": {
+                "type": "string",
+                "description": "Record type: 'product' or 'shop'"
+            },
+            "itemId": {
+                "type": [
+                    "string",
+                    "null"
+                ],
+                "description": "Numeric Taobao/Tmall item ID (null on failed search rows)"
+            },
+            "query": {
+                "type": [
+                    "string",
+                    "null"
+                ],
+                "description": "Search keyword or query on failed search rows"
+            },
+            "url": {
+                "type": "string",
+                "description": "Canonical item or shop URL"
+            },
+            "platform": {
+                "type": "string",
+                "enum": [
+                    "taobao",
+                    "tmall"
+                ],
+                "description": "Marketplace platform"
+            },
+            "title": {
+                "type": "string",
+                "description": "Original Chinese product title"
+            },
+            "titleEn": {
+                "type": [
+                    "string",
+                    "null"
+                ],
+                "description": "English translated product title"
+            },
+            "brand": {
+                "type": [
+                    "string",
+                    "null"
+                ],
+                "description": "Brand name"
+            },
+            "categoryPath": {
+                "type": [
+                    "string",
+                    "null"
+                ],
+                "description": "Category breadcrumb path"
+            },
+            "mainImage": {
+                "type": [
+                    "string",
+                    "null"
+                ],
+                "description": "Primary product image URL"
+            },
+            "images": {
+                "type": "array",
+                "items": {
+                    "type": "string"
+                },
+                "description": "Gallery image URLs"
+            },
+            "descriptionImages": {
+                "type": "array",
+                "items": {
+                    "type": "string"
+                },
+                "description": "Product description image URLs"
+            },
+            "videoUrl": {
+                "type": [
+                    "string",
+                    "null"
+                ],
+                "description": "Product video URL if present"
+            },
+            "attributes": {
+                "type": "object",
+                "description": "Product attributes in Chinese"
+            },
+            "attributesEn": {
+                "type": "object",
+                "description": "Product attributes translated to English"
+            },
+            "price": {
+                "type": [
+                    "number",
+                    "null"
+                ],
+                "description": "Current active price in CNY"
+            },
+            "originalPrice": {
+                "type": [
+                    "number",
+                    "null"
+                ],
+                "description": "Original crossed-out price in CNY"
+            },
+            "promoPrice": {
+                "type": [
+                    "number",
+                    "null"
+                ],
+                "description": "Promotion price in CNY before coupons"
+            },
+            "finalPrice": {
+                "type": [
+                    "number",
+                    "null"
+                ],
+                "description": "Computed final price in CNY after best coupon, shop discount, and threshold deal"
+            },
+            "finalPriceDiscounts": {
+                "type": "array",
+                "description": "Applied discount and coupon breakdown for finalPrice"
+            },
+            "unappliedDiscounts": {
+                "type": "array",
+                "items": {
+                    "type": "string"
+                },
+                "description": "Unparsed or unapplied promotion labels when priceType is partial"
+            },
+            "priceType": {
+                "type": "string",
+                "description": "How the price was determined (exact_final, partial, promo_only, base_price, range_min, unknown)"
+            },
+            "currency": {
+                "type": "string",
+                "description": "Currency of price, originalPrice, promoPrice, finalPrice, minPrice, maxPrice and SKU prices. Always CNY."
+            },
+            "priceConverted": {
+                "type": [
+                    "number",
+                    "null"
+                ],
+                "description": "Effective price (finalPrice, else promoPrice, else price) converted into convertedCurrency"
+            },
+            "convertedCurrency": {
+                "type": "string",
+                "description": "Currency of priceConverted / finalPriceConverted (the 'currency' input, e.g. USD)"
+            },
+            "finalPriceConverted": {
+                "type": [
+                    "number",
+                    "null"
+                ],
+                "description": "finalPrice converted into convertedCurrency (null when no exact final price)"
+            },
+            "minPrice": {
+                "type": [
+                    "number",
+                    "null"
+                ],
+                "description": "Lowest real price in CNY across listing price, price range and real SKU prices"
+            },
+            "maxPrice": {
+                "type": [
+                    "number",
+                    "null"
+                ],
+                "description": "Highest real price in CNY across listing price, price range and real SKU prices"
+            },
+            "priceWarning": {
+                "type": [
+                    "string",
+                    "null"
+                ],
+                "description": "Set when a placeholder price such as 9999 or 99999 was rejected"
+            },
+            "detailSource": {
+                "type": [
+                    "string",
+                    "null"
+                ],
+                "description": "Where product detail came from: world_ssr, seo_pdp_api, mtop_detail, playwright, playwright_world, world_html, or null for listing-only rows"
+            },
+            "exchangeRate": {
+                "type": [
+                    "number",
+                    "null"
+                ],
+                "description": "CNY to target currency exchange rate"
+            },
+            "exchangeRateDate": {
+                "type": [
+                    "string",
+                    "null"
+                ],
+                "description": "ISO date of the exchange rate"
+            },
+            "exchangeRateSource": {
+                "type": "string",
+                "enum": [
+                    "live",
+                    "fallback"
+                ],
+                "description": "Source of the exchange rate: 'live' or 'fallback'"
+            },
+            "translationStatus": {
+                "type": "string",
+                "enum": [
+                    "ok",
+                    "partial",
+                    "failed",
+                    "disabled"
+                ],
+                "description": "Status of Chinese-to-English translation"
+            },
+            "salesText": {
+                "type": [
+                    "string",
+                    "null"
+                ],
+                "description": "Raw sales string from Taobao/Tmall (e.g. '1万+')"
+            },
+            "salesCount": {
+                "type": [
+                    "number",
+                    "null"
+                ],
+                "description": "Parsed lower-bound numeric sales count"
+            },
+            "stock": {
+                "type": [
+                    "number",
+                    "null"
+                ],
+                "description": "Total available stock (capped display ~200 on signed-out pages)"
+            },
+            "skus": {
+                "type": "array",
+                "description": "SKU variants with props, propsEn, price, originalPrice, finalPrice, stock, and image"
+            },
+            "shipFrom": {
+                "type": [
+                    "string",
+                    "null"
+                ],
+                "description": "Shipping origin city/province"
+            },
+            "shippingFee": {
+                "type": [
+                    "number",
+                    "null"
+                ],
+                "description": "Domestic shipping fee in CNY (null when conditional such as 满X包邮)"
+            },
+            "shippingNote": {
+                "type": [
+                    "string",
+                    "null"
+                ],
+                "description": "Conditional shipping note (e.g. 满88包邮)"
+            },
+            "shopId": {
+                "type": [
+                    "string",
+                    "null"
+                ],
+                "description": "Shop identifier"
+            },
+            "shopName": {
+                "type": [
+                    "string",
+                    "null"
+                ],
+                "description": "Shop display name"
+            },
+            "shopType": {
+                "type": [
+                    "string",
+                    "null"
+                ],
+                "description": "Shop tier/type (taobao, tmall, flagship, etc.)"
+            },
+            "shopUrl": {
+                "type": [
+                    "string",
+                    "null"
+                ],
+                "description": "Shop storefront URL"
+            },
+            "sellerScores": {
+                "type": [
+                    "object",
+                    "null"
+                ],
+                "description": "DSR scores: description, service, logistics"
+            },
+            "creditLevel": {
+                "type": [
+                    "string",
+                    "null"
+                ],
+                "description": "Seller credit rating level"
+            },
+            "shopAgeYears": {
+                "type": [
+                    "number",
+                    "null"
+                ],
+                "description": "Shop age in years"
+            },
+            "shopProductCount": {
+                "type": [
+                    "number",
+                    "null"
+                ],
+                "description": "Total products in shop"
+            },
+            "agentLinks": {
+                "type": "object",
+                "description": "Shopping agent links (superbuy, cssbuy, sugargoo, cnfans, hoobuy)"
+            },
+            "dataCompleteness": {
+                "type": "number",
+                "description": "Completeness score from 0 to 100"
+            },
+            "missingFields": {
+                "type": "array",
+                "items": {
+                    "type": "string"
+                },
+                "description": "List of fields missing on this record"
+            },
+            "status": {
+                "type": "string",
+                "enum": [
+                    "ok",
+                    "partial",
+                    "failed"
+                ],
+                "description": "Extraction status"
+            },
+            "errorReason": {
+                "type": [
+                    "string",
+                    "null"
+                ],
+                "description": "Failure or partial warning explanation"
+            },
+            "scrapedAt": {
+                "type": "string",
+                "description": "ISO timestamp of scrape"
+            },
+            "changeType": {
+                "type": [
+                    "string",
+                    "null"
+                ],
+                "enum": [
+                    "new",
+                    "changed",
+                    "unchanged",
+                    null
+                ],
+                "description": "Monitoring change status compared to previous run"
+            },
+            "previousValues": {
+                "type": "object",
+                "description": "Previous field values when changeType is 'changed'"
+            }
+        }
+    },
+    "views": {
+        "overview": {
+            "title": "Products Overview (EN & CN)",
+            "description": "Primary product view with English titles, CNY and converted prices, sales, shop info, and completeness.",
+            "transformation": {
+                "fields": [
+                    "itemId",
+                    "platform",
+                    "titleEn",
+                    "title",
+                    "price",
+                    "minPrice",
+                    "maxPrice",
+                    "finalPrice",
+                    "priceConverted",
+                    "currency",
+                    "convertedCurrency",
+                    "priceWarning",
+                    "salesText",
+                    "salesCount",
+                    "stock",
+                    "shopName",
+                    "mainImage",
+                    "url",
+                    "dataCompleteness",
+                    "status"
+                ]
+            },
+            "display": {
+                "component": "table",
+                "properties": {
+                    "itemId": {
+                        "label": "Item ID",
+                        "format": "text"
+                    },
+                    "platform": {
+                        "label": "Platform",
+                        "format": "text"
+                    },
+                    "titleEn": {
+                        "label": "Title (EN)",
+                        "format": "text"
+                    },
+                    "title": {
+                        "label": "Title (CN)",
+                        "format": "text"
+                    },
+                    "price": {
+                        "label": "Price (CNY)",
+                        "format": "number"
+                    },
+                    "finalPrice": {
+                        "label": "Final Price (CNY)",
+                        "format": "number"
+                    },
+                    "priceConverted": {
+                        "label": "Converted Price",
+                        "format": "number"
+                    },
+                    "currency": {
+                        "label": "Currency (prices)",
+                        "format": "text"
+                    },
+                    "salesText": {
+                        "label": "Sales (Raw)",
+                        "format": "text"
+                    },
+                    "salesCount": {
+                        "label": "Sales (Min)",
+                        "format": "number"
+                    },
+                    "stock": {
+                        "label": "Stock",
+                        "format": "number"
+                    },
+                    "shopName": {
+                        "label": "Shop Name",
+                        "format": "text"
+                    },
+                    "mainImage": {
+                        "label": "Main Image",
+                        "format": "image"
+                    },
+                    "url": {
+                        "label": "Product URL",
+                        "format": "link"
+                    },
+                    "dataCompleteness": {
+                        "label": "Completeness (%)",
+                        "format": "number"
+                    },
+                    "status": {
+                        "label": "Status",
+                        "format": "text"
+                    },
+                    "minPrice": {
+                        "label": "Min Price (CNY)",
+                        "format": "number"
+                    },
+                    "maxPrice": {
+                        "label": "Max Price (CNY)",
+                        "format": "number"
+                    },
+                    "convertedCurrency": {
+                        "label": "Converted Currency",
+                        "format": "text"
+                    },
+                    "priceWarning": {
+                        "label": "Price Warning",
+                        "format": "text"
+                    }
+                }
+            }
+        },
+        "pricingAndSkus": {
+            "title": "SKUs & Real Final Prices",
+            "description": "Detailed pricing breakdown including coupons, threshold deals (满减), and SKU variants.",
+            "transformation": {
+                "fields": [
+                    "itemId",
+                    "titleEn",
+                    "originalPrice",
+                    "price",
+                    "promoPrice",
+                    "finalPrice",
+                    "priceType",
+                    "finalPriceDiscounts",
+                    "skus",
+                    "priceConverted",
+                    "currency"
+                ]
+            },
+            "display": {
+                "component": "table",
+                "properties": {
+                    "itemId": {
+                        "label": "Item ID",
+                        "format": "text"
+                    },
+                    "titleEn": {
+                        "label": "Title (EN)",
+                        "format": "text"
+                    },
+                    "originalPrice": {
+                        "label": "Original (CNY)",
+                        "format": "number"
+                    },
+                    "price": {
+                        "label": "Price (CNY)",
+                        "format": "number"
+                    },
+                    "promoPrice": {
+                        "label": "Promo (CNY)",
+                        "format": "number"
+                    },
+                    "finalPrice": {
+                        "label": "Final (CNY)",
+                        "format": "number"
+                    },
+                    "priceType": {
+                        "label": "Price Type",
+                        "format": "text"
+                    },
+                    "finalPriceDiscounts": {
+                        "label": "Discount Breakdown",
+                        "format": "array"
+                    },
+                    "skus": {
+                        "label": "SKU Variants",
+                        "format": "array"
+                    },
+                    "priceConverted": {
+                        "label": "Converted",
+                        "format": "number"
+                    },
+                    "currency": {
+                        "label": "Currency",
+                        "format": "text"
+                    }
+                }
+            }
+        },
+        "shopsAndSellers": {
+            "title": "Shops & Seller Ratings",
+            "description": "Seller scores (description, service, logistics), shop age, credit level, and origin.",
+            "transformation": {
+                "fields": [
+                    "itemId",
+                    "shopId",
+                    "shopName",
+                    "shopType",
+                    "shopUrl",
+                    "sellerScores",
+                    "creditLevel",
+                    "shopAgeYears",
+                    "shopProductCount",
+                    "shipFrom",
+                    "shippingFee"
+                ]
+            },
+            "display": {
+                "component": "table",
+                "properties": {
+                    "itemId": {
+                        "label": "Item ID",
+                        "format": "text"
+                    },
+                    "shopId": {
+                        "label": "Shop ID",
+                        "format": "text"
+                    },
+                    "shopName": {
+                        "label": "Shop Name",
+                        "format": "text"
+                    },
+                    "shopType": {
+                        "label": "Shop Type",
+                        "format": "text"
+                    },
+                    "shopUrl": {
+                        "label": "Shop URL",
+                        "format": "link"
+                    },
+                    "sellerScores": {
+                        "label": "Seller Scores",
+                        "format": "object"
+                    },
+                    "creditLevel": {
+                        "label": "Credit Level",
+                        "format": "text"
+                    },
+                    "shopAgeYears": {
+                        "label": "Shop Age (Yrs)",
+                        "format": "number"
+                    },
+                    "shopProductCount": {
+                        "label": "Shop Products",
+                        "format": "number"
+                    },
+                    "shipFrom": {
+                        "label": "Ship From",
+                        "format": "text"
+                    },
+                    "shippingFee": {
+                        "label": "Shipping (CNY)",
+                        "format": "number"
+                    }
+                }
+            }
+        },
+        "agentLinksView": {
+            "title": "Shopping Agent Links",
+            "description": "Direct purchase links for Superbuy, CSSBuy, Sugargoo, CNFans, and Hoobuy.",
+            "transformation": {
+                "fields": [
+                    "itemId",
+                    "titleEn",
+                    "price",
+                    "priceConverted",
+                    "currency",
+                    "agentLinks",
+                    "url"
+                ]
+            },
+            "display": {
+                "component": "table",
+                "properties": {
+                    "itemId": {
+                        "label": "Item ID",
+                        "format": "text"
+                    },
+                    "titleEn": {
+                        "label": "Title (EN)",
+                        "format": "text"
+                    },
+                    "price": {
+                        "label": "Price (CNY)",
+                        "format": "number"
+                    },
+                    "priceConverted": {
+                        "label": "Converted Price",
+                        "format": "number"
+                    },
+                    "currency": {
+                        "label": "Currency",
+                        "format": "text"
+                    },
+                    "agentLinks": {
+                        "label": "Agent Links",
+                        "format": "object"
+                    },
+                    "url": {
+                        "label": "Taobao/Tmall URL",
+                        "format": "link"
+                    }
+                }
+            }
+        },
+        "monitoringView": {
+            "title": "Monitoring & Change Tracking",
+            "description": "New or changed items detected compared to previous runs.",
+            "transformation": {
+                "fields": [
+                    "itemId",
+                    "changeType",
+                    "previousValues",
+                    "price",
+                    "finalPrice",
+                    "stock",
+                    "salesCount",
+                    "scrapedAt"
+                ]
+            },
+            "display": {
+                "component": "table",
+                "properties": {
+                    "itemId": {
+                        "label": "Item ID",
+                        "format": "text"
+                    },
+                    "changeType": {
+                        "label": "Change Type",
+                        "format": "text"
+                    },
+                    "previousValues": {
+                        "label": "Previous Values",
+                        "format": "object"
+                    },
+                    "price": {
+                        "label": "Price (CNY)",
+                        "format": "number"
+                    },
+                    "finalPrice": {
+                        "label": "Final Price (CNY)",
+                        "format": "number"
+                    },
+                    "stock": {
+                        "label": "Stock",
+                        "format": "number"
+                    },
+                    "salesCount": {
+                        "label": "Sales Count",
+                        "format": "number"
+                    },
+                    "scrapedAt": {
+                        "label": "Scraped At",
+                        "format": "date"
+                    }
+                }
+            }
+        }
+    }
+}

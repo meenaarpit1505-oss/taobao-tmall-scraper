@@ -1,0 +1,42 @@
+{
+  "api": "mtop.taobao.detail.getdetail",
+  "v": "6.0",
+  "ret": ["SUCCESS::调用成功"],
+  "data": {
+    "item": {
+      "itemId": "681674848244",
+      "title": "适用苹果AirPods Pro2保护套无线蓝牙耳机硅胶软壳防摔耳机套",
+      "images": [
+        "//img.alicdn.com/imgextra/i1/000000000/O1CN01main1_!!000000000.jpg"
+      ],
+      "categoryPath": "3C数码配件/蓝牙耳机保护套"
+    },
+    "seller": {
+      "shopId": "546420755",
+      "shopName": "数码配件严选店",
+      "shopType": "C",
+      "creditLevel": "12",
+      "evaluates": [
+        { "title": "宝贝描述", "score": "4.9" },
+        { "title": "卖家服务", "score": "4.9" },
+        { "title": "物流服务", "score": "4.9" }
+      ]
+    },
+    "props": {
+      "groupProps": [
+        {
+          "基本信息": [
+            { "材质": "液态硅胶" },
+            { "风格": "简约纯色" }
+          ]
+        }
+      ]
+    },
+    "apiStack": [
+      {
+        "name": "esi",
+        "value": "{\"price\":{\"price\":{\"priceText\":\"15.80\"},\"extraPrices\":[{\"priceTitle\":\"原价\",\"priceText\":\"25.80\"}]},\"item\":{\"vagueSellCount\":\"1000+\"},\"delivery\":{\"from\":\"广东深圳\",\"postage\":\"快递: 免运费\"},\"skuBase\":{\"props\":[{\"pid\":\"1627207\",\"name\":\"颜色分类\",\"values\":[{\"vid\":\"28320\",\"name\":\"米白色\"}]}],\"skus\":[{\"skuId\":\"490001\",\"propPath\":\"1627207:28320\"}]},\"skuCore\":{\"sku2info\":{\"0\":{\"price\":{\"priceText\":\"15.80\"},\"quantity\":\"200\"},\"490001\":{\"price\":{\"priceText\":\"15.80\"},\"quantity\":\"120\"}}}}"
+      }
+    ]
+  }
+}

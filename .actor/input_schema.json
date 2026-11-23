@@ -1,0 +1,246 @@
+{
+    "title": "Taobao & Tmall Scraper Input",
+    "description": "Scrape Taobao and Tmall products, SKUs, real final prices, shops, and search results in English and Chinese. Click Start to run with the prefilled keyword search.",
+    "type": "object",
+    "schemaVersion": 1,
+    "properties": {
+        "startUrls": {
+            "sectionCaption": "Inputs",
+            "sectionDescription": "Provide any mix of Taobao/Tmall URLs, numeric item IDs, or search keywords.",
+            "title": "Start URLs",
+            "type": "array",
+            "description": "Product, short share link (e.tb.cn / m.tb.cn), shop, search, or category URLs on Taobao/Tmall. Example: https://detail.tmall.com/item.htm?id=1079352038299 or https://m.tb.cn/h.5xyz123",
+            "editor": "requestListSources",
+            "prefill": []
+        },
+        "itemIds": {
+            "title": "Item IDs",
+            "type": "array",
+            "description": "Numeric Taobao or Tmall product IDs (5 to 20 digits). Example: [\"1079352038299\", \"1019865884154\", \"1069464409891\"]",
+            "editor": "stringList",
+            "items": {
+                "type": "string"
+            },
+            "default": []
+        },
+        "keywords": {
+            "title": "Search Keywords",
+            "type": "array",
+            "description": "Keywords to search on Taobao and Tmall. Example: [\"蓝牙耳机\", \"机械键盘\"]",
+            "editor": "stringList",
+            "items": {
+                "type": "string"
+            },
+            "default": [],
+            "prefill": ["蓝牙耳机"]
+        },
+        "maxItemsPerQuery": {
+            "title": "Max Items Per Query",
+            "type": "integer",
+            "description": "Maximum products to scrape per keyword, search URL, category URL, or shop URL. Example: 20",
+            "default": 20,
+            "prefill": 20,
+            "minimum": 1,
+            "maximum": 5000
+        },
+        "minPrice": {
+            "sectionCaption": "Search filters",
+            "sectionDescription": "Optional price, platform, shipping origin, and sort filters for keyword and search URLs.",
+            "title": "Min Price (CNY)",
+            "type": "number",
+            "description": "Minimum product price in Chinese Yuan (CNY) for search results. Example: 50",
+            "editor": "number",
+            "minimum": 0
+        },
+        "maxPrice": {
+            "title": "Max Price (CNY)",
+            "type": "number",
+            "description": "Maximum product price in Chinese Yuan (CNY) for search results. Example: 500",
+            "editor": "number",
+            "minimum": 0
+        },
+        "tmallOnly": {
+            "title": "Tmall Only",
+            "type": "boolean",
+            "description": "Keep only Tmall (天猫) products in search results. Example: true",
+            "default": false
+        },
+        "location": {
+            "title": "Ship From Location",
+            "type": "string",
+            "description": "Filter search results by shipping province or city in Chinese. Example: 深圳 or 广州",
+            "editor": "textfield"
+        },
+        "sort": {
+            "title": "Sort Order",
+            "type": "string",
+            "description": "Sort order for search results. Example: sales",
+            "editor": "select",
+            "default": "default",
+            "enum": ["default", "sales", "priceAsc", "priceDesc"],
+            "enumTitles": [
+                "Default (Comprehensive)",
+                "Top Sales (销量从高到低)",
+                "Price: Low to High (价格从低到高)",
+                "Price: High to Low (价格从高到低)"
+            ]
+        },
+        "includeDetails": {
+            "sectionCaption": "Output options",
+            "sectionDescription": "Control detail extraction, English translation, currency conversion, and shopping agent links.",
+            "title": "Include Full Details & SKUs",
+            "type": "boolean",
+            "description": "Fetch full product details, SKU variants, attributes, and real final prices after coupons. Example: true",
+            "default": true
+        },
+        "includeShopInfo": {
+            "title": "Include Shop & Seller Ratings",
+            "type": "boolean",
+            "description": "Include shop name, URL, DSR seller scores, credit level, and shop age. Example: true",
+            "default": true
+        },
+        "translateToEnglish": {
+            "title": "Translate to English",
+            "type": "boolean",
+            "description": "Translate Chinese titles, SKU labels, and attributes to English while keeping Chinese originals. Example: true",
+            "default": true
+        },
+        "translationProvider": {
+            "title": "Translation Provider",
+            "type": "string",
+            "description": "Engine used for English translation: free Google (best-effort, may be rate-limited), DeepL API, or Google Cloud. Example: gtx",
+            "editor": "select",
+            "default": "gtx",
+            "enum": ["gtx", "deepl", "google"],
+            "enumTitles": [
+                "Google (Free / No Key, best-effort)",
+                "DeepL API (Recommended for Large Runs)",
+                "Google Cloud Translation API"
+            ]
+        },
+        "translationApiKey": {
+            "title": "Translation API Key",
+            "type": "string",
+            "description": "API key for DeepL or Google Cloud when selected above. Example: your-deepl-key:fx",
+            "editor": "textfield",
+            "isSecret": true
+        },
+        "currency": {
+            "title": "Target Currency",
+            "type": "string",
+            "description": "Currency code used to convert CNY prices into priceConverted. Example: USD",
+            "default": "USD",
+            "enum": ["USD", "EUR", "GBP", "INR", "CAD", "AUD", "JPY", "KRW", "SGD", "MYR", "HKD", "CNY"],
+            "enumTitles": [
+                "USD — US Dollar ($)",
+                "EUR — Euro (€)",
+                "GBP — British Pound (£)",
+                "INR — Indian Rupee (₹)",
+                "CAD — Canadian Dollar (C$)",
+                "AUD — Australian Dollar (A$)",
+                "JPY — Japanese Yen (¥)",
+                "KRW — South Korean Won (₩)",
+                "SGD — Singapore Dollar (S$)",
+                "MYR — Malaysian Ringgit (RM)",
+                "HKD — Hong Kong Dollar (HK$)",
+                "CNY — Chinese Yuan (¥)"
+            ]
+        },
+        "agentLinks": {
+            "title": "Shopping Agent Links",
+            "type": "array",
+            "description": "Cross-border shopping agent links to include on each product. Example: [\"superbuy\", \"cnfans\"]",
+            "editor": "select",
+            "uniqueItems": true,
+            "default": ["superbuy", "cssbuy", "sugargoo", "cnfans", "hoobuy"],
+            "items": {
+                "type": "string",
+                "enum": ["superbuy", "cssbuy", "sugargoo", "cnfans", "hoobuy"],
+                "enumTitles": ["Superbuy", "CSSBuy", "Sugargoo", "CNFans", "Hoobuy"]
+            }
+        },
+        "monitoringMode": {
+            "sectionCaption": "Monitoring",
+            "sectionDescription": "Track price and stock changes across scheduled runs.",
+            "title": "Monitoring Mode (Delta Only)",
+            "type": "boolean",
+            "description": "Emit only new or changed items compared to the previous run and include previousValues. Example: false",
+            "default": false
+        },
+        "monitoringKey": {
+            "title": "Monitoring State Key",
+            "type": "string",
+            "description": "Custom name to isolate monitoring history for a specific watchlist. Example: headphones-watchlist",
+            "editor": "textfield"
+        },
+        "proxyConfiguration": {
+            "sectionCaption": "Proxy & Anti-Bot",
+            "sectionDescription": "Residential proxy configuration, country selection, session warm-up, Playwright fallback, and optional cookies.",
+            "title": "Proxy Configuration",
+            "type": "object",
+            "description": "Use Apify Proxy (RESIDENTIAL) or custom proxyUrls with sticky sessions. Example: {\"useApifyProxy\": true, \"apifyProxyGroups\": [\"RESIDENTIAL\"]}",
+            "editor": "proxy",
+            "default": {
+                "useApifyProxy": true,
+                "apifyProxyGroups": ["RESIDENTIAL"]
+            },
+            "prefill": {
+                "useApifyProxy": true,
+                "apifyProxyGroups": ["RESIDENTIAL"]
+            }
+        },
+        "proxyCountry": {
+            "title": "Residential Proxy Country",
+            "type": "string",
+            "description": "Preferred RESIDENTIAL proxy country (default CN, with automatic fallback across HK, TW, SG, and US if blocked or unavailable). Example: CN",
+            "editor": "select",
+            "default": "CN",
+            "enum": ["CN", "HK", "TW", "SG", "US", "JP"],
+            "enumTitles": [
+                "Mainland China (CN) — Default with HK/TW/SG Auto-Fallback",
+                "Hong Kong (HK)",
+                "Taiwan (TW)",
+                "Singapore (SG)",
+                "United States (US)",
+                "Japan (JP)"
+            ]
+        },
+        "enableSessionWarmup": {
+            "title": "Enable Session Warm-Up",
+            "type": "boolean",
+            "description": "Warm up each sticky proxy session by visiting Taobao pages with browser headers to collect _m_h5_tk, _m_h5_tk_enc, cna, and t cookies before signing MTOP requests, and retire sessions automatically on RGV587 blocks.",
+            "default": true
+        },
+        "enablePlaywrightFallback": {
+            "title": "Enable Playwright Browser Fallback",
+            "type": "boolean",
+            "description": "Fall back to one shared headless Chromium browser (mobile profile) when HTTP/MTOP endpoints are blocked. Turns itself off after 3 failed items in a row.",
+            "default": true
+        },
+        "taobaoCookies": {
+            "title": "Taobao Logged-In Cookies (Optional)",
+            "type": "string",
+            "description": "Optional logged-in Taobao/Tmall cookie string (key=value; ...) or Cookie-Editor JSON array as a last-resort bypass when anti-bot challenges block anonymous requests.",
+            "editor": "textfield",
+            "isSecret": true
+        },
+        "maxConcurrency": {
+            "sectionCaption": "Advanced",
+            "sectionDescription": "Fine-tune human-like request concurrency and legacy cookie alias.",
+            "title": "Max Concurrency",
+            "type": "integer",
+            "description": "Maximum parallel requests (keep low between 1 and 5 for human-like pacing with 1-4s random delays). Example: 2",
+            "default": 2,
+            "minimum": 1,
+            "maximum": 25
+        },
+        "cookie": {
+            "title": "Taobao Cookie (Legacy Alias)",
+            "type": "string",
+            "description": "Legacy alias for taobaoCookies. Optional browser Cookie header for signed-in sessions. Example: _m_h5_tk=...",
+            "editor": "textfield",
+            "isSecret": true
+        }
+    },
+    "required": []
+}
