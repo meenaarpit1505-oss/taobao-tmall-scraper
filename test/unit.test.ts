@@ -1346,29 +1346,46 @@ describe('10. Launch-Ready Regressions (429 backoff, shipping regex, keyword-onl
         expect(zeroExpress.shippingFee).toBe(0);
     });
 
-    it('input schema startUrls prefill is empty so the default run is keyword-only, and empty startUrls with a keyword validates', async () => {
+    it('input schema default/prefill is a small keyword search, not product IDs or shop mode, and empty input {} works', async () => {
         const schemaRaw = await fs.readFile(path.resolve('.actor/input_schema.json'), 'utf8');
         const schema = JSON.parse(schemaRaw) as {
             properties: {
                 startUrls?: { prefill?: Array<{ url?: string } | string> };
-                keywords?: { prefill?: string[] };
+                itemIds?: { default?: string[] };
+                keywords?: { prefill?: string[]; default?: string[] };
+                maxItemsPerQuery?: { default?: number; prefill?: number };
+                includeDetails?: { default?: boolean };
             };
         };
         const startPrefill = schema.properties.startUrls?.prefill ?? [];
         expect(startPrefill).toEqual([]);
         expect(JSON.stringify(startPrefill)).not.toContain('678901234567');
-        expect(schema.properties.keywords?.prefill).toEqual(['蓝牙耳机']);
+        expect(schema.properties.itemIds?.default ?? []).toEqual([]);
+        expect(schema.properties.keywords?.prefill).toEqual(['机械键盘']);
+        expect(schema.properties.keywords?.default).toEqual(['机械键盘']);
+        expect(schema.properties.maxItemsPerQuery?.default).toBe(10);
+        expect(schema.properties.maxItemsPerQuery?.prefill).toBe(10);
+        expect(schema.properties.includeDetails?.default).toBe(false);
 
-        const normalized = validateAndNormalizeInput({
+        const fromPrefill = validateAndNormalizeInput({
             startUrls: [],
             keywords: schema.properties.keywords?.prefill,
         });
-        expect(normalized.startUrls).toEqual([]);
-        expect(normalized.keywords).toEqual(['蓝牙耳机']);
+        expect(fromPrefill.startUrls).toEqual([]);
+        expect(fromPrefill.keywords).toEqual(['机械键盘']);
+        expect(fromPrefill.includeDetails).toBe(false);
+        expect(fromPrefill.maxItemsPerQuery).toBe(10);
 
-        const tasks = buildInitialTasks(normalized);
-        expect(tasks.some((t) => t.type === 'search' && t.keyword === '蓝牙耳机')).toBe(true);
-        expect(tasks.some((t) => t.type === 'product')).toBe(false);
+        const fromEmpty = validateAndNormalizeInput({});
+        expect(fromEmpty.keywords).toEqual(['机械键盘']);
+        expect(fromEmpty.itemIds ?? []).toEqual([]);
+        expect(fromEmpty.startUrls ?? []).toEqual([]);
+        expect(fromEmpty.includeDetails).toBe(false);
+        expect(fromEmpty.maxItemsPerQuery).toBe(10);
+
+        const tasks = buildInitialTasks(fromEmpty);
+        expect(tasks.some((t) => t.type === 'search' && t.keyword === '机械键盘')).toBe(true);
+        expect(tasks.some((t) => t.type === 'product' || t.type === 'shop')).toBe(false);
     });
 });
 

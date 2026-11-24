@@ -2,6 +2,12 @@
 
 All notable changes to the **Taobao & Tmall Scraper** (`taobao-tmall-scraper`) Actor are documented in this file.
 
+## [1.2.5] - 2026-11-24
+
+### Fixed
+
+- **Store daily auto-test / empty input**: The default and prefill input is now a keyword search for `机械键盘` (10 items, `includeDetails: false`), not an empty keyword list and not product IDs. An empty input `{}` uses the same defaults, so Apify Store auto-tests and "try this Actor" runs work without getting blocked in product or shop mode. Actor version stays 1.2.
+
 ## [1.2.2] - 2026-11-24
 
 ### Added

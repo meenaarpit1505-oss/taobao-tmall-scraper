@@ -35,7 +35,7 @@ Built for reliability with automatic link routing, overseas `world.taobao.com` S
 
 ## How to Use It (Step by Step)
 
-1. **Open the Actor in Apify Console**: Click **Try for free** — the input comes prefilled with the keyword `"蓝牙耳机"`, `maxItemsPerQuery: 20`, and Apify Proxy (`RESIDENTIAL`).
+1. **Open the Actor in Apify Console**: Click **Try for free** — the input comes prefilled with the keyword `"机械键盘"`, `maxItemsPerQuery: 10`, `includeDetails: false`, and Apify Proxy (`RESIDENTIAL`). An empty run uses the same defaults.
 2. **Choose Your Inputs**: Paste any combination of `startUrls` (products, short links, shops, searches, categories), numeric `itemIds`, or Chinese/English `keywords`.
 3. **Configure Filters & Output Options**: Set optional search filters (`minPrice`, `maxPrice`, `tmallOnly`, `location`, `sort`), target `currency` (default `USD`), and English translation (`translateToEnglish: true`).
 4. **Verify Proxy & Anti-Bot Settings**: Keep **Apify Proxy** enabled with `RESIDENTIAL`, choose your preferred `proxyCountry` (default `CN` with automatic fallback to `HK`, `TW`, `SG`, `US`), and leave `enableSessionWarmup` and `enablePlaywrightFallback` enabled. If you are scraping login-restricted items, paste your browser cookies into `taobaoCookies`.
@@ -83,9 +83,9 @@ Built for reliability with automatic link routing, overseas `world.taobao.com` S
 
 ```json
 {
-    "keywords": ["蓝牙耳机"],
-    "maxItemsPerQuery": 20,
-    "includeDetails": true,
+    "keywords": ["机械键盘"],
+    "maxItemsPerQuery": 10,
+    "includeDetails": false,
     "translateToEnglish": true,
     "currency": "USD",
     "proxyCountry": "CN"
@@ -125,10 +125,10 @@ Built for reliability with automatic link routing, overseas `world.taobao.com` S
 
 - **`startUrls`** (`array`): Product URLs (`item.taobao.com`, `detail.tmall.com`, `world.taobao.com/item/<slug>.htm`), short links (`tb.cn`, `m.tb.cn`, `e.tb.cn`), shop URLs (`shop<id>.taobao.com`, `world.taobao.com/dianpu/<id>.htm`), search URLs, or category URLs.
 - **`itemIds`** (`string[]`): Numeric Taobao or Tmall product IDs (5 to 20 digits).
-- **`keywords`** (`string[]`): Search keywords in Chinese or English.
-- **`maxItemsPerQuery`** (`integer`, default `20`): Maximum items to collect per keyword, category, or shop URL.
+- **`keywords`** (`string[]`, default `["机械键盘"]`): Search keywords in Chinese or English.
+- **`maxItemsPerQuery`** (`integer`, default `10`): Maximum items to collect per keyword, category, or shop URL.
 - **`minPrice` / `maxPrice` / `tmallOnly` / `location` / `sort`**: Optional search filters.
-- **`includeDetails`** (`boolean`, default `true`): Fetch full product details, images, attributes, and SKU data.
+- **`includeDetails`** (`boolean`, default `false`): Fetch full product details, images, attributes, and SKU data. Leave this off for faster listing-only runs; set it to `true` when you need SKUs and real final prices.
 - **`includeShopInfo`** (`boolean`, default `true`): Include shop metadata and seller DSR ratings.
 - **`translateToEnglish`** (`boolean`, default `true`): Translate Chinese titles, SKU labels, and attributes to English.
 - **`translationProvider`** (`"gtx" | "deepl" | "google"`, default `"gtx"`) & **`translationApiKey`** (`string`, secret).
