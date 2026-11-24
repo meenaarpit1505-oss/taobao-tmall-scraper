@@ -2,6 +2,12 @@
 
 All notable changes to the **Taobao & Tmall Scraper** (`taobao-tmall-scraper`) Actor are documented in this file.
 
+## [1.2.2] - 2026-11-24
+
+### Added
+
+- **Output schema**: Added `.actor/output_schema.json` (actorOutputSchemaVersion 1) so the Actor can be published to the Apify Store. The schema points at the default dataset items plus key-value store records `RUN_SUMMARY`, `DEBUG_PROBE` and `BLOCKED_RUN_NOTE`. A matching `.actor/key_value_store_schema.json` was added. Dataset and input schemas are unchanged. Actor version stays 1.2.
+
 ## [1.2.0] - 2026-11-22
 
 ### Fixed

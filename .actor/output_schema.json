@@ -1,0 +1,31 @@
+{
+    "actorOutputSchemaVersion": 1,
+    "title": "Taobao & Tmall scrape results",
+    "description": "Dataset of product, shop and listing records, plus run summary and debug probe records in the default key-value store.",
+    "properties": {
+        "dataset": {
+            "type": "string",
+            "title": "Results",
+            "description": "Default dataset items: product details, search listings and shop catalogue rows.",
+            "template": "{{links.apiDefaultDatasetUrl}}/items"
+        },
+        "runSummary": {
+            "type": "string",
+            "title": "Run summary",
+            "description": "RUN_SUMMARY record: counts, billing, proxy country, translation status and any block warnings. Written on every run, including timeouts and aborts.",
+            "template": "{{links.apiDefaultKeyValueStoreUrl}}/records/RUN_SUMMARY"
+        },
+        "debugProbe": {
+            "type": "string",
+            "title": "Debug probe",
+            "description": "DEBUG_PROBE record: redacted request telemetry (URLs, status codes, cookie names only). Written on every run.",
+            "template": "{{links.apiDefaultKeyValueStoreUrl}}/records/DEBUG_PROBE"
+        },
+        "blockedRunNote": {
+            "type": "string",
+            "title": "Blocked-run note",
+            "description": "BLOCKED_RUN_NOTE record, written only when a run returns zero products because of anti-bot blocks.",
+            "template": "{{links.apiDefaultKeyValueStoreUrl}}/records/BLOCKED_RUN_NOTE"
+        }
+    }
+}
