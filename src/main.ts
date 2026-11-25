@@ -236,7 +236,8 @@ export async function runTaobaoScraper(
         }
     }
 
-    await billing.chargeEvent('actor-start', 1);
+    // apify-actor-start is charged by the platform itself; only track it for the local max-charge budget.
+    billing.recordPlatformStartFee();
 
     const getProxyUrlForSession = async (sessionId: string, countryCode?: string): Promise<string | undefined> => {
         if (!proxyConfiguration) return undefined;
@@ -356,6 +357,9 @@ export async function runTaobaoScraper(
     const perItemTimeoutMs = deps.perItemTimeoutMs ?? (deps.h5Client ? 60_000 : 150_000);
     let stoppedEarlyReason: string | null = null;
     const isNearDeadline = (marginMs = 0): boolean => Date.now() + marginMs >= runDeadlineMs;
+    // Never let the anti-bot cooldown pause outlive the run: shorten or skip it near the deadline (v1.3 fix for
+    // TIMED-OUT runs that spent their last 60-70s sleeping in the circuit-breaker pause).
+    h5Client.circuitBreaker?.setDeadline?.(runDeadlineMs);
     const abandonedItemIds = new Set<string>();
     const translationCounts: Record<string, number> = {};
 

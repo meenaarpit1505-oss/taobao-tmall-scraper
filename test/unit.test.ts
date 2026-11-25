@@ -1733,9 +1733,50 @@ describe('10. v1.1 Anti-RGV587 Strategies, DEBUG_PROBE, Playwright Fallback Fixt
             'final-price',
         ]);
         expect(ppeSchema.events['actor-start']?.eventPriceUsd).toBe(0.001);
-        expect(ppeSchema.events['listing']?.eventPriceUsd).toBe(0.0025);
-        expect(ppeSchema.events['product-detail']?.eventPriceUsd).toBe(0.0065);
-        expect(ppeSchema.events['final-price']?.eventPriceUsd).toBe(0.015);
+        expect(ppeSchema.events['listing']?.eventPriceUsd).toBe(0.0015);
+        expect(ppeSchema.events['product-detail']?.eventPriceUsd).toBe(0.0035);
+        expect(ppeSchema.events['final-price']?.eventPriceUsd).toBe(0.005);
     });
 });
 
+
+describe('v1.3 Regressions: deadline-aware circuit breaker and platform start fee', () => {
+    it('trips immediately instead of sleeping when the run deadline leaves no time for a cooldown', async () => {
+        const cb = new CircuitBreaker({ threshold: 2, pauseDurationMs: 60_000 });
+        cb.setDeadline(Date.now() + 10_000);
+        const t0 = Date.now();
+        await cb.recordBlock('block_1');
+        await cb.recordBlock('block_2');
+        expect(Date.now() - t0).toBeLessThan(1_000);
+        expect(cb.isTripped()).toBe(true);
+        expect(cb.getStats().pausedCycles).toBe(0);
+    });
+
+    it('caps the cooldown pause so it ends at least 30s before the deadline', async () => {
+        const cb = new CircuitBreaker({ threshold: 1, pauseDurationMs: 60_000 });
+        cb.setDeadline(Date.now() + 30_000 + 5_500);
+        const t0 = Date.now();
+        await cb.recordBlock('block_1');
+        expect(Date.now() - t0).toBeGreaterThanOrEqual(4_000);
+        expect(Date.now() - t0).toBeLessThan(7_000);
+        expect(cb.isTripped()).toBe(false);
+        expect(cb.getStats().pausedCycles).toBe(1);
+    }, 15_000);
+
+    it('records the platform apify-actor-start fee per GB without calling Actor.charge', () => {
+        const prev = process.env.ACTOR_MEMORY_MBYTES;
+        process.env.ACTOR_MEMORY_MBYTES = '2048';
+        const spy = vi.spyOn(Actor, 'charge');
+        try {
+            const billing = new BillingManager();
+            billing.recordPlatformStartFee();
+            expect(spy).not.toHaveBeenCalled();
+            expect(billing.getSummary().eventsCharged['actor-start']).toBe(2);
+            expect(billing.getSummary().estimatedCostUsd).toBeCloseTo(0.002, 6);
+        } finally {
+            spy.mockRestore();
+            if (prev === undefined) delete process.env.ACTOR_MEMORY_MBYTES;
+            else process.env.ACTOR_MEMORY_MBYTES = prev;
+        }
+    });
+});

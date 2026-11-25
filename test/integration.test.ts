@@ -610,10 +610,10 @@ describe('Integration Tests — All Modes (Product, Short Link, Search, Shop, Mo
         });
 
         // Budget = $0.0080:
-        // actor-start ($0.001) + product-detail ($0.0065) = $0.0075 (fits!)
-        // Adding final-price ($0.015) would be $0.0225 (exceeds $0.0080!)
+        // actor-start ($0.001) + product-detail ($0.0035) = $0.0045 (fits!)
+        // Adding final-price ($0.005) would be $0.0095 (exceeds $0.0060!)
         // Item 1 must skip final-price charge, still be pushed, and be recorded in monitoring.
-        // Item 2 cannot afford product-detail ($0.0075 + $0.0065 = $0.0140 > $0.0080), so it is NOT pushed and NOT marked seen in monitoring!
+        // Item 2 cannot afford product-detail ($0.0045 + $0.0035 = $0.0080 > $0.0060), so it is NOT pushed and NOT marked seen in monitoring!
         const monitoring = new MonitoringService(true, undefined, {
             persistToStore: false,
             monitoringKey: 'task_budget_test_1',
@@ -626,7 +626,7 @@ describe('Integration Tests — All Modes (Product, Short Link, Search, Shop, Mo
                 itemIds: ['7777777701', '8888888802'],
                 monitoringMode: true,
                 monitoringKey: 'task_budget_test_1',
-                maxChargeUsd: 0.008,
+                maxChargeUsd: 0.006,
                 proxyConfiguration: { useApifyProxy: false },
             },
             {
@@ -638,7 +638,7 @@ describe('Integration Tests — All Modes (Product, Short Link, Search, Shop, Mo
             },
         );
 
-        // Item 1 was charged product-detail ($0.0065) without final-price ($0.015), and was pushed!
+        // Item 1 was charged product-detail ($0.0035) without final-price ($0.005), and was pushed!
         expect(emitted).toHaveLength(1);
         expect(emitted[0].itemId).toBe('7777777701');
         expect(emitted[0].finalPrice).toBeNull();
@@ -977,9 +977,9 @@ describe('Integration Tests — All Modes (Product, Short Link, Search, Shop, Mo
 
     it('LOW Regression: hits ACTOR_MAX_TOTAL_CHARGE_USD spending limit across multiple items in an isolated storage dir and stops cleanly', async () => {
         const prevEnv = process.env.ACTOR_MAX_TOTAL_CHARGE_USD;
-        // Budget = $0.015:
-        // actor-start ($0.001) + 2 product-detail items ($0.0065 * 2 = $0.013) = $0.014 (fits 2 items, stops before 3rd item!)
-        process.env.ACTOR_MAX_TOTAL_CHARGE_USD = '0.015';
+        // Budget = $0.009:
+        // actor-start ($0.001) + 2 product-detail items ($0.0035 * 2 = $0.007) = $0.008 (fits 2 items, stops before 3rd item!)
+        process.env.ACTOR_MAX_TOTAL_CHARGE_USD = '0.009';
         try {
             const deps = createTestDependencies(async (url) => {
                 const idMatch = url.match(/950000000(\d)/);
@@ -1019,7 +1019,7 @@ describe('Integration Tests — All Modes (Product, Short Link, Search, Shop, Mo
             expect(summary.billing.limitReached).toBe(true);
             expect(summary.billing.eventsCharged['actor-start']).toBe(1);
             expect(summary.billing.eventsCharged['product-detail']).toBe(2);
-            expect(summary.billing.estimatedCostUsd).toBeLessThanOrEqual(0.015);
+            expect(summary.billing.estimatedCostUsd).toBeLessThanOrEqual(0.009);
         } finally {
             if (prevEnv === undefined) delete process.env.ACTOR_MAX_TOTAL_CHARGE_USD;
             else process.env.ACTOR_MAX_TOTAL_CHARGE_USD = prevEnv;

@@ -2,6 +2,19 @@
 
 All notable changes to the **Taobao & Tmall Scraper** (`taobao-tmall-scraper`) Actor are documented in this file.
 
+## [1.3.0] - 2026-11-25
+
+### Fixed
+
+- **Timeouts on detail / `itemIds` runs**: the anti-bot circuit-breaker cooldown is now deadline-aware. It pauses 30 s (was 60 s), never pauses past ~30 s before the run deadline, and trips immediately (uncharged failed rows, clean exit) when there is no time left, instead of sleeping until Apify kills the run.
+- **Start fee**: the Actor no longer calls `Actor.charge('actor-start')` (not a priced event, so it only produced warnings). The platform charges `apify-actor-start` itself; the Actor just counts it for the local spending-limit budget.
+
+### Changed
+
+- **Prices lowered and tiered by Apify plan**: listing $1.50 → $1.10, product-detail $3.50 → $2.50 (primary event), final-price $5.00 → $3.60 per 1,000 (Free → Gold). Budget estimates use the Free-plan price as an upper bound.
+- **Default memory 1 GB** (was 4 GB in the Console run options), which cuts the per-GB start fee 4×.
+- README: use cases, memory & cost guide, output screenshot, tiered price table.
+
 ## [1.2.5] - 2026-11-24
 
 ### Fixed
