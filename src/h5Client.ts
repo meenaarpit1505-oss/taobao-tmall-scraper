@@ -288,10 +288,23 @@ export class CircuitBreaker {
     private instancePauseGate: Promise<void> | null = null;
     private readonly threshold: number;
     private readonly pauseDurationMs: number;
+    private deadlineMs = Number.POSITIVE_INFINITY;
 
     constructor(options?: { threshold?: number; pauseDurationMs?: number }) {
         this.threshold = options?.threshold ?? 5;
-        this.pauseDurationMs = options?.pauseDurationMs ?? 60_000;
+        this.pauseDurationMs = options?.pauseDurationMs ?? 30_000;
+    }
+
+    /** Run deadline (epoch ms). Cooldown pauses are capped so they never push the run past it. */
+    public setDeadline(deadlineMs: number): void {
+        if (Number.isFinite(deadlineMs)) this.deadlineMs = deadlineMs;
+    }
+
+    /** Trip immediately (e.g. no time left for a cooldown); remaining items become uncharged failed rows. */
+    public trip(reason: string): void {
+        if (this.tripped) return;
+        this.tripped = true;
+        log.error(`Circuit breaker tripped: ${reason}. Stopping gracefully; failed rows are never charged.`);
     }
 
     public isTripped(): boolean {
@@ -350,15 +363,20 @@ export class CircuitBreaker {
         });
 
         if (this.consecutiveBlocks >= this.threshold) {
-            if (this.pausedCycles === 0) {
+            // Leave at least 30s after the pause to actually retry; otherwise pausing only burns compute.
+            const availableMs = this.deadlineMs - Date.now() - 30_000;
+            const pauseMs = Math.max(0, Math.min(this.pauseDurationMs, availableMs));
+            if (this.pausedCycles === 0 && availableMs < Math.min(5_000, this.pauseDurationMs)) {
+                this.trip(`${this.threshold} consecutive anti-bot blocks and not enough run time left for a cooldown`);
+            } else if (this.pausedCycles === 0) {
                 this.pausedCycles += 1;
                 this.consecutiveBlocks = 0;
                 log.warning(
                     `Circuit breaker triggered (${this.threshold} consecutive blocks). Pausing for ${Math.round(
-                        this.pauseDurationMs / 1000,
+                        pauseMs / 1000,
                     )}s before resuming with fresh proxy sessions...`,
                 );
-                const gate = new Promise<void>((resolve) => setTimeout(resolve, this.pauseDurationMs)).finally(() => {
+                const gate = new Promise<void>((resolve) => setTimeout(resolve, pauseMs)).finally(() => {
                     if (sharedModulePauseGate === gate) {
                         sharedModulePauseGate = null;
                     }

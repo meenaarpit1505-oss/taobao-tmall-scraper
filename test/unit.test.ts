@@ -1346,29 +1346,46 @@ describe('10. Launch-Ready Regressions (429 backoff, shipping regex, keyword-onl
         expect(zeroExpress.shippingFee).toBe(0);
     });
 
-    it('input schema startUrls prefill is empty so the default run is keyword-only, and empty startUrls with a keyword validates', async () => {
+    it('input schema default/prefill is a small keyword search, not product IDs or shop mode, and empty input {} works', async () => {
         const schemaRaw = await fs.readFile(path.resolve('.actor/input_schema.json'), 'utf8');
         const schema = JSON.parse(schemaRaw) as {
             properties: {
                 startUrls?: { prefill?: Array<{ url?: string } | string> };
-                keywords?: { prefill?: string[] };
+                itemIds?: { default?: string[] };
+                keywords?: { prefill?: string[]; default?: string[] };
+                maxItemsPerQuery?: { default?: number; prefill?: number };
+                includeDetails?: { default?: boolean };
             };
         };
         const startPrefill = schema.properties.startUrls?.prefill ?? [];
         expect(startPrefill).toEqual([]);
         expect(JSON.stringify(startPrefill)).not.toContain('678901234567');
-        expect(schema.properties.keywords?.prefill).toEqual(['蓝牙耳机']);
+        expect(schema.properties.itemIds?.default ?? []).toEqual([]);
+        expect(schema.properties.keywords?.prefill).toEqual(['机械键盘']);
+        expect(schema.properties.keywords?.default).toEqual(['机械键盘']);
+        expect(schema.properties.maxItemsPerQuery?.default).toBe(10);
+        expect(schema.properties.maxItemsPerQuery?.prefill).toBe(10);
+        expect(schema.properties.includeDetails?.default).toBe(false);
 
-        const normalized = validateAndNormalizeInput({
+        const fromPrefill = validateAndNormalizeInput({
             startUrls: [],
             keywords: schema.properties.keywords?.prefill,
         });
-        expect(normalized.startUrls).toEqual([]);
-        expect(normalized.keywords).toEqual(['蓝牙耳机']);
+        expect(fromPrefill.startUrls).toEqual([]);
+        expect(fromPrefill.keywords).toEqual(['机械键盘']);
+        expect(fromPrefill.includeDetails).toBe(false);
+        expect(fromPrefill.maxItemsPerQuery).toBe(10);
 
-        const tasks = buildInitialTasks(normalized);
-        expect(tasks.some((t) => t.type === 'search' && t.keyword === '蓝牙耳机')).toBe(true);
-        expect(tasks.some((t) => t.type === 'product')).toBe(false);
+        const fromEmpty = validateAndNormalizeInput({});
+        expect(fromEmpty.keywords).toEqual(['机械键盘']);
+        expect(fromEmpty.itemIds ?? []).toEqual([]);
+        expect(fromEmpty.startUrls ?? []).toEqual([]);
+        expect(fromEmpty.includeDetails).toBe(false);
+        expect(fromEmpty.maxItemsPerQuery).toBe(10);
+
+        const tasks = buildInitialTasks(fromEmpty);
+        expect(tasks.some((t) => t.type === 'search' && t.keyword === '机械键盘')).toBe(true);
+        expect(tasks.some((t) => t.type === 'product' || t.type === 'shop')).toBe(false);
     });
 });
 
@@ -1716,9 +1733,50 @@ describe('10. v1.1 Anti-RGV587 Strategies, DEBUG_PROBE, Playwright Fallback Fixt
             'final-price',
         ]);
         expect(ppeSchema.events['actor-start']?.eventPriceUsd).toBe(0.001);
-        expect(ppeSchema.events['listing']?.eventPriceUsd).toBe(0.0025);
-        expect(ppeSchema.events['product-detail']?.eventPriceUsd).toBe(0.0065);
-        expect(ppeSchema.events['final-price']?.eventPriceUsd).toBe(0.015);
+        expect(ppeSchema.events['listing']?.eventPriceUsd).toBe(0.0015);
+        expect(ppeSchema.events['product-detail']?.eventPriceUsd).toBe(0.0035);
+        expect(ppeSchema.events['final-price']?.eventPriceUsd).toBe(0.005);
     });
 });
 
+
+describe('v1.3 Regressions: deadline-aware circuit breaker and platform start fee', () => {
+    it('trips immediately instead of sleeping when the run deadline leaves no time for a cooldown', async () => {
+        const cb = new CircuitBreaker({ threshold: 2, pauseDurationMs: 60_000 });
+        cb.setDeadline(Date.now() + 10_000);
+        const t0 = Date.now();
+        await cb.recordBlock('block_1');
+        await cb.recordBlock('block_2');
+        expect(Date.now() - t0).toBeLessThan(1_000);
+        expect(cb.isTripped()).toBe(true);
+        expect(cb.getStats().pausedCycles).toBe(0);
+    });
+
+    it('caps the cooldown pause so it ends at least 30s before the deadline', async () => {
+        const cb = new CircuitBreaker({ threshold: 1, pauseDurationMs: 60_000 });
+        cb.setDeadline(Date.now() + 30_000 + 5_500);
+        const t0 = Date.now();
+        await cb.recordBlock('block_1');
+        expect(Date.now() - t0).toBeGreaterThanOrEqual(4_000);
+        expect(Date.now() - t0).toBeLessThan(7_000);
+        expect(cb.isTripped()).toBe(false);
+        expect(cb.getStats().pausedCycles).toBe(1);
+    }, 15_000);
+
+    it('records the platform apify-actor-start fee per GB without calling Actor.charge', () => {
+        const prev = process.env.ACTOR_MEMORY_MBYTES;
+        process.env.ACTOR_MEMORY_MBYTES = '2048';
+        const spy = vi.spyOn(Actor, 'charge');
+        try {
+            const billing = new BillingManager();
+            billing.recordPlatformStartFee();
+            expect(spy).not.toHaveBeenCalled();
+            expect(billing.getSummary().eventsCharged['actor-start']).toBe(2);
+            expect(billing.getSummary().estimatedCostUsd).toBeCloseTo(0.002, 6);
+        } finally {
+            spy.mockRestore();
+            if (prev === undefined) delete process.env.ACTOR_MEMORY_MBYTES;
+            else process.env.ACTOR_MEMORY_MBYTES = prev;
+        }
+    });
+});

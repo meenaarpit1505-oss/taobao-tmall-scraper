@@ -4,10 +4,12 @@ import type { ProductOutput } from './types.js';
 export type BillingEventName = 'actor-start' | 'listing' | 'product-detail' | 'final-price';
 
 export const EVENT_UNIT_PRICES_USD: Record<BillingEventName, number> = {
-    'actor-start': 0.001, // Minimal start fee
-    listing: 0.0025, // $2.50 / 1,000 listings
-    'product-detail': 0.0065, // $6.50 / 1,000 product details
-    'final-price': 0.015, // $15.00 / 1,000 real final-price breakdown add-ons
+    // Upper-bound (FREE tier) prices used only for the local max-charge budget. Paid Apify plans get lower
+    // tiered prices (GOLD: listing $1.10, detail $2.50, final-price $3.60 per 1,000), so this never under-estimates.
+    'actor-start': 0.001, // apify-actor-start, charged automatically by the platform (per GB of memory)
+    listing: 0.0015, // $1.50 / 1,000 listings (FREE tier)
+    'product-detail': 0.0035, // $3.50 / 1,000 product details (FREE tier)
+    'final-price': 0.005, // $5.00 / 1,000 real final-price breakdown add-ons (FREE tier)
 };
 
 export interface BillingSummary {
@@ -53,6 +55,19 @@ export class BillingManager {
 
     public canAffordEvent(eventName: BillingEventName, count = 1): boolean {
         return this.canAffordCost(EVENT_UNIT_PRICES_USD[eventName] * count);
+    }
+
+    /**
+     * The start fee is the synthetic `apify-actor-start` event that the Apify platform charges by itself
+     * (one event per GB of memory). Calling Actor.charge('actor-start') is wrong: that event is not in the
+     * pricing, so it only produced warnings. We just account for it in the local budget here.
+     */
+    public recordPlatformStartFee(): void {
+        const memoryMb = Number(process.env.ACTOR_MEMORY_MBYTES ?? process.env.APIFY_MEMORY_MBYTES ?? 1024);
+        const startEvents = Math.max(1, Math.ceil((Number.isFinite(memoryMb) ? memoryMb : 1024) / 1024));
+        this.eventsCharged['actor-start'] += startEvents;
+        this.estimatedCostUsd =
+            Math.round((this.estimatedCostUsd + EVENT_UNIT_PRICES_USD['actor-start'] * startEvents) * 100000) / 100000;
     }
 
     public async chargeEvent(eventName: BillingEventName, count = 1): Promise<boolean> {

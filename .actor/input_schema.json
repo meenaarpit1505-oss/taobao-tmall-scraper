@@ -31,15 +31,19 @@
             "items": {
                 "type": "string"
             },
-            "default": [],
-            "prefill": ["蓝牙耳机"]
+            "default": [
+                "机械键盘"
+            ],
+            "prefill": [
+                "机械键盘"
+            ]
         },
         "maxItemsPerQuery": {
             "title": "Max Items Per Query",
             "type": "integer",
-            "description": "Maximum products to scrape per keyword, search URL, category URL, or shop URL. Example: 20",
-            "default": 20,
-            "prefill": 20,
+            "description": "Maximum products to scrape per keyword, search URL, category URL, or shop URL. Example: 10",
+            "default": 10,
+            "prefill": 10,
             "minimum": 1,
             "maximum": 5000
         },
@@ -77,7 +81,12 @@
             "description": "Sort order for search results. Example: sales",
             "editor": "select",
             "default": "default",
-            "enum": ["default", "sales", "priceAsc", "priceDesc"],
+            "enum": [
+                "default",
+                "sales",
+                "priceAsc",
+                "priceDesc"
+            ],
             "enumTitles": [
                 "Default (Comprehensive)",
                 "Top Sales (销量从高到低)",
@@ -91,7 +100,7 @@
             "title": "Include Full Details & SKUs",
             "type": "boolean",
             "description": "Fetch full product details, SKU variants, attributes, and real final prices after coupons. Example: true",
-            "default": true
+            "default": false
         },
         "includeShopInfo": {
             "title": "Include Shop & Seller Ratings",
@@ -111,7 +120,11 @@
             "description": "Engine used for English translation: free Google (best-effort, may be rate-limited), DeepL API, or Google Cloud. Example: gtx",
             "editor": "select",
             "default": "gtx",
-            "enum": ["gtx", "deepl", "google"],
+            "enum": [
+                "gtx",
+                "deepl",
+                "google"
+            ],
             "enumTitles": [
                 "Google (Free / No Key, best-effort)",
                 "DeepL API (Recommended for Large Runs)",
@@ -130,7 +143,20 @@
             "type": "string",
             "description": "Currency code used to convert CNY prices into priceConverted. Example: USD",
             "default": "USD",
-            "enum": ["USD", "EUR", "GBP", "INR", "CAD", "AUD", "JPY", "KRW", "SGD", "MYR", "HKD", "CNY"],
+            "enum": [
+                "USD",
+                "EUR",
+                "GBP",
+                "INR",
+                "CAD",
+                "AUD",
+                "JPY",
+                "KRW",
+                "SGD",
+                "MYR",
+                "HKD",
+                "CNY"
+            ],
             "enumTitles": [
                 "USD — US Dollar ($)",
                 "EUR — Euro (€)",
@@ -152,11 +178,29 @@
             "description": "Cross-border shopping agent links to include on each product. Example: [\"superbuy\", \"cnfans\"]",
             "editor": "select",
             "uniqueItems": true,
-            "default": ["superbuy", "cssbuy", "sugargoo", "cnfans", "hoobuy"],
+            "default": [
+                "superbuy",
+                "cssbuy",
+                "sugargoo",
+                "cnfans",
+                "hoobuy"
+            ],
             "items": {
                 "type": "string",
-                "enum": ["superbuy", "cssbuy", "sugargoo", "cnfans", "hoobuy"],
-                "enumTitles": ["Superbuy", "CSSBuy", "Sugargoo", "CNFans", "Hoobuy"]
+                "enum": [
+                    "superbuy",
+                    "cssbuy",
+                    "sugargoo",
+                    "cnfans",
+                    "hoobuy"
+                ],
+                "enumTitles": [
+                    "Superbuy",
+                    "CSSBuy",
+                    "Sugargoo",
+                    "CNFans",
+                    "Hoobuy"
+                ]
             }
         },
         "monitoringMode": {
@@ -182,11 +226,15 @@
             "editor": "proxy",
             "default": {
                 "useApifyProxy": true,
-                "apifyProxyGroups": ["RESIDENTIAL"]
+                "apifyProxyGroups": [
+                    "RESIDENTIAL"
+                ]
             },
             "prefill": {
                 "useApifyProxy": true,
-                "apifyProxyGroups": ["RESIDENTIAL"]
+                "apifyProxyGroups": [
+                    "RESIDENTIAL"
+                ]
             }
         },
         "proxyCountry": {
@@ -195,7 +243,14 @@
             "description": "Preferred RESIDENTIAL proxy country (default CN, with automatic fallback across HK, TW, SG, and US if blocked or unavailable). Example: CN",
             "editor": "select",
             "default": "CN",
-            "enum": ["CN", "HK", "TW", "SG", "US", "JP"],
+            "enum": [
+                "CN",
+                "HK",
+                "TW",
+                "SG",
+                "US",
+                "JP"
+            ],
             "enumTitles": [
                 "Mainland China (CN) — Default with HK/TW/SG Auto-Fallback",
                 "Hong Kong (HK)",

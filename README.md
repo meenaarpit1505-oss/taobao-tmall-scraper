@@ -4,6 +4,10 @@ All-in-one **Taobao scraper** and **Tmall scraper** (`淘宝` / `天猫`) with a
 Extract product details, SKU variants, real final prices after coupons and `满减` threshold deals, shop catalogues, search listings, live CNY currency conversions, and shopping agent links in one run.
 Built for reliability with automatic link routing, overseas `world.taobao.com` SSR extraction, Crawlee `SessionPool` warm-up + signed Mobile H5 MTOP handshakes, Playwright browser fallback, and delta price/stock monitoring.
 
+**From $1.50 per 1,000 listings and $3.50 per 1,000 full product details** (cheaper on paid Apify plans: down to $1.10 / $2.50). Runs on **1 GB of memory** by default, so the start fee is just $0.001 per run.
+
+![Taobao & Tmall Scraper output: English titles, CNY and USD prices, shop names and status per product](https://raw.githubusercontent.com/meenaarpit907-eng/taobao-tmall-scraper/fix/memory-timeouts-pricing/docs/images/output-example.png)
+
 ---
 
 ## Key Features
@@ -33,9 +37,27 @@ Built for reliability with automatic link routing, overseas `world.taobao.com` S
 
 ---
 
+## Use Cases
+
+- **Dropshipping (Taobao → Shopify / WooCommerce)**: Search a keyword such as `"机械键盘"` (mechanical keyboard) with `includeDetails: true`, export the dataset as CSV, and map `titleEn`, `images`, `skus[].propsEn` and `finalPriceConverted` to your store's import template. Add your margin in a spreadsheet column before importing.
+- **Price monitoring**: Save a task with your competitors' item URLs or shop URLs, turn on `monitoringMode: true`, and schedule it daily. You only receive (and only pay for) products that are `new` or whose price, coupon or stock `changed`, with the old values in `previousValues`.
+- **Reseller & sourcing research**: Compare the same product across Tmall flagship stores and Taobao sellers using `finalPrice` after coupons and 满减 deals, DSR seller scores, shop age and `shipFrom`, then open the item directly on Superbuy, CSSBuy, Sugargoo, CNFans or Hoobuy via `agentLinks`.
+- **Market research & AI agents**: Pull English-translated listings for a category to size price bands and brands, or call the Actor from an AI agent (MCP / API) to answer "what does this cost on Taobao?" questions.
+
+---
+
+## Memory, Speed & Cost
+
+- **Default memory: 1 GB.** Keyword search, shop catalogues and most product details (via `world.taobao.com`) use about 150–250 MB, so 1 GB is plenty. Apify charges the `apify-actor-start` fee per GB, so 1 GB keeps it at **$0.001 per run** (it was 4 GB before).
+- **When to use 2 GB**: only if you rely on the Playwright browser fallback for many numeric `itemIds` that `world.taobao.com` cannot serve. Chromium needs the extra headroom.
+- **Run timeouts are respected**: the Actor stops starting new work ~45 s before your run timeout, shortens or skips its anti-bot cooldown pause when time is short, and writes an uncharged `status: "failed"` row for anything not processed. You never pay for empty or failed rows.
+- **Typical speed**: a 3-item listing run finishes in ~10 s; 2 full product details in ~15 s (tested on 1 GB, 2026-11-25).
+
+---
+
 ## How to Use It (Step by Step)
 
-1. **Open the Actor in Apify Console**: Click **Try for free** — the input comes prefilled with the keyword `"蓝牙耳机"`, `maxItemsPerQuery: 20`, and Apify Proxy (`RESIDENTIAL`).
+1. **Open the Actor in Apify Console**: Click **Try for free** — the input comes prefilled with the keyword `"机械键盘"`, `maxItemsPerQuery: 10`, `includeDetails: false`, and Apify Proxy (`RESIDENTIAL`). An empty run uses the same defaults.
 2. **Choose Your Inputs**: Paste any combination of `startUrls` (products, short links, shops, searches, categories), numeric `itemIds`, or Chinese/English `keywords`.
 3. **Configure Filters & Output Options**: Set optional search filters (`minPrice`, `maxPrice`, `tmallOnly`, `location`, `sort`), target `currency` (default `USD`), and English translation (`translateToEnglish: true`).
 4. **Verify Proxy & Anti-Bot Settings**: Keep **Apify Proxy** enabled with `RESIDENTIAL`, choose your preferred `proxyCountry` (default `CN` with automatic fallback to `HK`, `TW`, `SG`, `US`), and leave `enableSessionWarmup` and `enablePlaywrightFallback` enabled. If you are scraping login-restricted items, paste your browser cookies into `taobaoCookies`.
@@ -83,9 +105,9 @@ Built for reliability with automatic link routing, overseas `world.taobao.com` S
 
 ```json
 {
-    "keywords": ["蓝牙耳机"],
-    "maxItemsPerQuery": 20,
-    "includeDetails": true,
+    "keywords": ["机械键盘"],
+    "maxItemsPerQuery": 10,
+    "includeDetails": false,
     "translateToEnglish": true,
     "currency": "USD",
     "proxyCountry": "CN"
@@ -125,10 +147,10 @@ Built for reliability with automatic link routing, overseas `world.taobao.com` S
 
 - **`startUrls`** (`array`): Product URLs (`item.taobao.com`, `detail.tmall.com`, `world.taobao.com/item/<slug>.htm`), short links (`tb.cn`, `m.tb.cn`, `e.tb.cn`), shop URLs (`shop<id>.taobao.com`, `world.taobao.com/dianpu/<id>.htm`), search URLs, or category URLs.
 - **`itemIds`** (`string[]`): Numeric Taobao or Tmall product IDs (5 to 20 digits).
-- **`keywords`** (`string[]`): Search keywords in Chinese or English.
-- **`maxItemsPerQuery`** (`integer`, default `20`): Maximum items to collect per keyword, category, or shop URL.
+- **`keywords`** (`string[]`, default `["机械键盘"]`): Search keywords in Chinese or English.
+- **`maxItemsPerQuery`** (`integer`, default `10`): Maximum items to collect per keyword, category, or shop URL.
 - **`minPrice` / `maxPrice` / `tmallOnly` / `location` / `sort`**: Optional search filters.
-- **`includeDetails`** (`boolean`, default `true`): Fetch full product details, images, attributes, and SKU data.
+- **`includeDetails`** (`boolean`, default `false`): Fetch full product details, images, attributes, and SKU data. Leave this off for faster listing-only runs; set it to `true` when you need SKUs and real final prices.
 - **`includeShopInfo`** (`boolean`, default `true`): Include shop metadata and seller DSR ratings.
 - **`translateToEnglish`** (`boolean`, default `true`): Translate Chinese titles, SKU labels, and attributes to English.
 - **`translationProvider`** (`"gtx" | "deepl" | "google"`, default `"gtx"`) & **`translationApiKey`** (`string`, secret).
@@ -300,26 +322,28 @@ Built for reliability with automatic link routing, overseas `world.taobao.com` S
 
 ## Pay-Per-Event (PPE) Pricing & Example Costs
 
-You only pay for successfully extracted product records (`status: "ok"` or `"partial"`). **Failed rows (`status: "failed"`), unchanged items skipped in monitoring mode, and shop summary rows are never charged.**
+You only pay for successfully extracted product records (`status: "ok"` or `"partial"`). **Failed rows (`status: "failed"`), unchanged items skipped in monitoring mode, and shop summary rows are never charged.** Prices are tiered by your Apify plan: the higher your plan, the lower the price.
 
-| Event Name | Price | When It Is Charged |
-| :--- | :--- | :--- |
-| `actor-start` | `$0.001` / run | Charged once after proxy setup succeeds |
-| `listing` | `$2.50` / 1,000 items (`$0.0025` / item) | Per product extracted in listing-only mode (`includeDetails: false`) |
-| `product-detail` | `$6.50` / 1,000 items (`$0.0065` / item) | Per product extracted with details (`includeDetails: true`); SKUs are included when Taobao returns them |
-| `final-price` | `$15.00` / 1,000 items (`$0.015` / item) | Add-on charged **only** when a coupon, shop discount, or `满X减Y` threshold deal was applied and `priceType === "exact_final"` (never charged for a plain listed promo price, crossed-out `originalPrice`, or `"partial"` results) |
+| Event Name | Free plan | Bronze | Silver | Gold+ | When It Is Charged |
+| :--- | :--- | :--- | :--- | :--- | :--- |
+| `apify-actor-start` | `$0.001` / GB | `$0.001` / GB | `$0.001` / GB | `$0.001` / GB | Once per run, per GB of memory (default 1 GB = `$0.001`) |
+| `listing` | `$1.50` / 1,000 | `$1.40` / 1,000 | `$1.20` / 1,000 | `$1.10` / 1,000 | Per product extracted in listing-only mode (`includeDetails: false`) |
+| `product-detail` ⭐ | `$3.50` / 1,000 | `$3.20` / 1,000 | `$2.90` / 1,000 | `$2.50` / 1,000 | Per product extracted with details (`includeDetails: true`); SKUs are included when Taobao returns them |
+| `final-price` | `$5.00` / 1,000 | `$4.50` / 1,000 | `$4.00` / 1,000 | `$3.60` / 1,000 | Add-on charged **only** when a coupon, shop discount, or `满X减Y` threshold deal was applied and `priceType === "exact_final"` (never charged for a plain listed promo price, crossed-out `originalPrice`, or `"partial"` results) |
 
-### Example Run Costs (100 Products vs. 1,000 Products)
+### Example Run Costs (Free-plan prices, 1 GB memory)
 
 | Scenario | 100 Products | 1,000 Products | Calculation |
 | :--- | :--- | :--- | :--- |
-| **Listing-only search** (`includeDetails: false`) | **`$0.251`** | **`$2.501`** | `$0.001` start + `$0.0025` × items |
-| **Full product details & SKUs** (`includeDetails: true`, no extra coupons) | **`$0.651`** | **`$6.501`** | `$0.001` start + `$0.0065` × items |
-| **Full details + 30% of items have verified coupons/满减 (`exact_final`)** | **`$1.101`** | **`$11.001`** | `$0.001` start + `$0.0065` × items + `$0.015` × 30% items |
+| **Listing-only search** (`includeDetails: false`) | **`$0.151`** | **`$1.501`** | `$0.001` start + `$0.0015` × items |
+| **Full product details & SKUs** (`includeDetails: true`, no extra coupons) | **`$0.351`** | **`$3.501`** | `$0.001` start + `$0.0035` × items |
+| **Full details + 30% of items have verified coupons/满减 (`exact_final`)** | **`$0.501`** | **`$5.001`** | `$0.001` start + `$0.0035` × items + `$0.005` × 30% items |
+
+On a Gold plan the same 1,000 full details cost about `$2.50`.
 
 ### Spending Limit (`ACTOR_MAX_TOTAL_CHARGE_USD`)
 
-The Actor respects Apify's maximum cost per run setting via `ACTOR_MAX_TOTAL_CHARGE_USD` (as well as `APIFY_MAX_TOTAL_CHARGE_USD`, `maxChargeUsd`, and `eventChargeLimitReached`). If your remaining budget can cover `product-detail` (`$0.0065`) but not the optional `final-price` add-on (`$0.015`), the `final-price` add-on is skipped so the product row is still emitted within your budget.
+The Actor respects Apify's maximum cost per run setting via `ACTOR_MAX_TOTAL_CHARGE_USD` (as well as `APIFY_MAX_TOTAL_CHARGE_USD`, `maxChargeUsd`, and `eventChargeLimitReached`). If your remaining budget can cover `product-detail` (`$0.0035`) but not the optional `final-price` add-on (`$0.005`), the `final-price` add-on is skipped so the product row is still emitted within your budget.
 
 ---
 
@@ -336,7 +360,7 @@ The Actor respects Apify's maximum cost per run setting via `ACTOR_MAX_TOTAL_CHA
 
 - **Apify Residential Proxy Integration**: Whenever `input.proxyConfiguration` is provided, the Actor calls `Actor.createProxyConfiguration(input.proxyConfiguration)` or uses your custom `proxyUrls`.
 - **Configurable `proxyCountry` with Auto-Fallback**: Set `proxyCountry` to `"CN"` (default), `"HK"`, `"TW"`, `"SG"`, `"US"`, or `"JP"`. If a country pool is unavailable or encounters `RGV587` blocks, the Actor retires the sticky session in Crawlee `SessionPool` and rotates across fallback countries (`CN -> HK -> TW -> SG -> US`).
-- **Platform Requirement**: On the Apify platform, if the proxy is disabled or unavailable, the run fails immediately before charging `actor-start` with: `"A proxy is required: enable Apify Proxy (RESIDENTIAL) or provide proxyUrls."`
+- **Platform Requirement**: On the Apify platform, if the proxy is disabled or unavailable, the run fails immediately with: `"A proxy is required: enable Apify Proxy (RESIDENTIAL) or provide proxyUrls."`
 
 ---
 
@@ -373,9 +397,10 @@ The Actor retires the current sticky session in Crawlee `SessionPool`, rotates t
 
 ### How can I cut costs on large runs?
 
-- Set `"includeDetails": false` when scanning search results or shop catalogues (`$2.50 / 1,000` listings instead of `$6.50 / 1,000` details).
+- Set `"includeDetails": false` when scanning search results or shop catalogues (`$1.50 / 1,000` listings instead of `$3.50 / 1,000` details).
 - Enable `"monitoringMode": true` on scheduled runs so unchanged products are skipped before billing.
 - Set a maximum run budget in Apify Console (`ACTOR_MAX_TOTAL_CHARGE_USD`).
+- Keep the default 1 GB memory: the start fee is charged per GB.
 
 ---
 

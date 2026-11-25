@@ -1,0 +1,227 @@
+{
+    "actorKeyValueStoreSchemaVersion": 1,
+    "title": "Run diagnostics",
+    "description": "Default key-value store records written by every run: summary, debug probe, and an optional blocked-run note.",
+    "collections": {
+        "runSummary": {
+            "title": "Run summary",
+            "description": "Counts, billing, proxy country, translation status, and block warnings. Always written, including on timeout or abort (partialSummary: true).",
+            "key": "RUN_SUMMARY",
+            "contentTypes": [
+                "application/json"
+            ],
+            "jsonSchema": {
+                "$schema": "http://json-schema.org/draft-07/schema#",
+                "type": "object",
+                "additionalProperties": true,
+                "required": [],
+                "properties": {
+                    "startedAt": {
+                        "type": "string",
+                        "nullable": true,
+                        "description": "ISO timestamp when the run started."
+                    },
+                    "finishedAt": {
+                        "type": "string",
+                        "nullable": true,
+                        "description": "ISO timestamp when this summary was written."
+                    },
+                    "durationMs": {
+                        "type": "number",
+                        "nullable": true,
+                        "description": "Elapsed run time in milliseconds."
+                    },
+                    "totalTasksRouted": {
+                        "type": "integer",
+                        "nullable": true
+                    },
+                    "uniqueProductsProcessed": {
+                        "type": "integer",
+                        "nullable": true
+                    },
+                    "recordsEmitted": {
+                        "type": "integer",
+                        "nullable": true
+                    },
+                    "shopRecordsEmitted": {
+                        "type": "integer",
+                        "nullable": true
+                    },
+                    "countsByStatus": {
+                        "type": "object",
+                        "nullable": true,
+                        "additionalProperties": true,
+                        "required": []
+                    },
+                    "monitoringCounts": {
+                        "type": "object",
+                        "nullable": true,
+                        "additionalProperties": true,
+                        "required": []
+                    },
+                    "successRatePercent": {
+                        "type": "number",
+                        "nullable": true
+                    },
+                    "blockRatePercent": {
+                        "type": "number",
+                        "nullable": true
+                    },
+                    "circuitBreakerTripped": {
+                        "type": "boolean",
+                        "nullable": true
+                    },
+                    "proxyCountry": {
+                        "type": "string",
+                        "nullable": true,
+                        "description": "Proxy country used most often."
+                    },
+                    "proxyCountryRequested": {
+                        "type": "string",
+                        "nullable": true
+                    },
+                    "proxyCountriesUsed": {
+                        "type": "object",
+                        "nullable": true,
+                        "additionalProperties": true,
+                        "required": []
+                    },
+                    "partialSummary": {
+                        "type": "boolean",
+                        "nullable": true
+                    },
+                    "stoppedEarlyReason": {
+                        "type": "string",
+                        "nullable": true
+                    },
+                    "translation": {
+                        "type": "object",
+                        "nullable": true,
+                        "additionalProperties": true,
+                        "required": []
+                    },
+                    "blockWarnings": {
+                        "type": "array",
+                        "nullable": true,
+                        "items": {
+                            "type": "string"
+                        }
+                    },
+                    "strategiesEnabled": {
+                        "type": "object",
+                        "nullable": true,
+                        "additionalProperties": true,
+                        "required": []
+                    },
+                    "blockedRunNote": {
+                        "type": "string",
+                        "nullable": true
+                    },
+                    "troubleshootingAdvice": {
+                        "type": "array",
+                        "nullable": true,
+                        "items": {
+                            "type": "string"
+                        }
+                    },
+                    "billing": {
+                        "type": "object",
+                        "nullable": true,
+                        "additionalProperties": true,
+                        "required": []
+                    }
+                }
+            }
+        },
+        "debugProbe": {
+            "title": "Debug probe",
+            "description": "Redacted request telemetry (URLs, status codes, cookie names only — never cookie values or tokens). Always written.",
+            "key": "DEBUG_PROBE",
+            "contentTypes": [
+                "application/json"
+            ],
+            "jsonSchema": {
+                "$schema": "http://json-schema.org/draft-07/schema#",
+                "type": "object",
+                "additionalProperties": true,
+                "required": [],
+                "properties": {
+                    "generatedAt": {
+                        "type": "string",
+                        "nullable": true
+                    },
+                    "totalRequests": {
+                        "type": "integer",
+                        "nullable": true
+                    },
+                    "totalRequestsRecorded": {
+                        "type": "integer",
+                        "nullable": true
+                    },
+                    "proxyGroup": {
+                        "type": "string",
+                        "nullable": true
+                    },
+                    "proxyCountry": {
+                        "type": "string",
+                        "nullable": true
+                    },
+                    "requests": {
+                        "type": "array",
+                        "nullable": true,
+                        "items": {
+                            "type": "object",
+                            "additionalProperties": true,
+                            "required": []
+                        }
+                    }
+                }
+            }
+        },
+        "blockedRunNote": {
+            "title": "Blocked-run note",
+            "description": "Written only when the run returned zero products because of anti-bot blocks. Includes troubleshooting steps.",
+            "key": "BLOCKED_RUN_NOTE",
+            "contentTypes": [
+                "application/json"
+            ],
+            "jsonSchema": {
+                "$schema": "http://json-schema.org/draft-07/schema#",
+                "type": "object",
+                "additionalProperties": true,
+                "required": [],
+                "properties": {
+                    "message": {
+                        "type": "string",
+                        "nullable": true
+                    },
+                    "troubleshootingSteps": {
+                        "type": "array",
+                        "nullable": true,
+                        "items": {
+                            "type": "string"
+                        }
+                    },
+                    "blockRatePercent": {
+                        "type": "number",
+                        "nullable": true
+                    },
+                    "proxyCountryTried": {
+                        "type": "string",
+                        "nullable": true
+                    },
+                    "proxyCountriesUsed": {
+                        "type": "object",
+                        "nullable": true,
+                        "additionalProperties": true,
+                        "required": []
+                    },
+                    "chargedProductEvents": {
+                        "type": "integer",
+                        "nullable": true
+                    }
+                }
+            }
+        }
+    }
+}

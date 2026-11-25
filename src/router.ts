@@ -56,6 +56,11 @@ const NON_SHOP_TAOBAO_SUBDOMAINS = new Set([
 /**
  * Validates raw Actor input and throws a descriptive error if invalid.
  */
+/** Defaults used when a field is omitted (must match .actor/input_schema.json). Enables Store daily auto-tests and empty-input runs. */
+export const DEFAULT_SEARCH_KEYWORD = '机械键盘';
+export const DEFAULT_MAX_ITEMS_PER_QUERY = 10;
+export const DEFAULT_INCLUDE_DETAILS = false;
+
 export function validateAndNormalizeInput(rawInput: unknown): Required<
     Pick<
         ActorInput,
@@ -78,12 +83,12 @@ export function validateAndNormalizeInput(rawInput: unknown): Required<
 
     const startUrls = Array.isArray(input.startUrls) ? input.startUrls : [];
     const itemIds = Array.isArray(input.itemIds) ? input.itemIds : [];
-    const keywords = Array.isArray(input.keywords) ? input.keywords.filter((k) => typeof k === 'string' && k.trim().length > 0) : [];
+    let keywords = Array.isArray(input.keywords) ? input.keywords.filter((k) => typeof k === 'string' && k.trim().length > 0) : [];
 
+    // Empty input (Store daily auto-test, or a run started with {}) falls back to the schema default keyword search.
     if (startUrls.length === 0 && itemIds.length === 0 && keywords.length === 0) {
-        throw new Error(
-            'Input validation error: Please provide at least one of "startUrls", "itemIds", or "keywords" to scrape.',
-        );
+        keywords = [DEFAULT_SEARCH_KEYWORD];
+        log.info(`No startUrls, itemIds, or keywords provided; using default keyword search "${DEFAULT_SEARCH_KEYWORD}".`);
     }
 
     // Merge top-level filter inputs (minPrice, maxPrice, tmallOnly, location, sort) with legacy searchFilters
@@ -175,7 +180,7 @@ export function validateAndNormalizeInput(rawInput: unknown): Required<
     }
 
     const proxyCountry = explicitProxyCountry ?? 'CN';
-    const maxItemsPerQuery = Math.max(1, Math.min(5000, Number(input.maxItemsPerQuery ?? 100)));
+    const maxItemsPerQuery = Math.max(1, Math.min(5000, Number(input.maxItemsPerQuery ?? DEFAULT_MAX_ITEMS_PER_QUERY)));
     const maxConcurrency = Math.max(1, Math.min(25, Number(input.maxConcurrency ?? 3)));
     const currency = (input.currency ?? 'USD').toUpperCase().trim();
 
@@ -200,7 +205,7 @@ export function validateAndNormalizeInput(rawInput: unknown): Required<
         keywords,
         searchFilters: mergedFilters,
         maxItemsPerQuery,
-        includeDetails: input.includeDetails ?? true,
+        includeDetails: input.includeDetails ?? DEFAULT_INCLUDE_DETAILS,
         includeShopInfo: input.includeShopInfo ?? true,
         translateToEnglish: input.translateToEnglish ?? true,
         currency,
